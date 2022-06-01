@@ -1,0 +1,29 @@
+<html>
+  <head>
+
+
+  </head>
+  <body>
+    <div id="time"></div>
+  </body>
+  <script>
+
+    (async function() {
+      const ele = document.getElementById('time');
+
+      const data = await fetch('https://cloudfront.fargle.com/example', {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "content-type": "application/json" // Force pre-flight.
+        }
+      });
+
+      ele.innerHTML = await data.text();
+
+    })();
+
+
+  </script>
+
+</html>

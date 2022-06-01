@@ -1,0 +1,55 @@
+{
+  "hosted-zone:account=037501505642:domainName=fargle.com:region=us-east-1": {
+    "Id": "/hostedzone/Z04600032WYQT26AZ21KK",
+    "Name": "fargle.com."
+  },
+  "vpc-provider:account=037501505642:filter.isDefault=true:region=us-east-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-0d9ee80bd52c9c877",
+    "vpcCidrBlock": "172.31.0.0/16",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-06140c7fb55076c5c",
+            "cidr": "172.31.32.0/20",
+            "availabilityZone": "us-east-1a",
+            "routeTableId": "rtb-0e927f3264b25980c"
+          },
+          {
+            "subnetId": "subnet-0e79842a3be89a6df",
+            "cidr": "172.31.0.0/20",
+            "availabilityZone": "us-east-1b",
+            "routeTableId": "rtb-0e927f3264b25980c"
+          },
+          {
+            "subnetId": "subnet-06e490ec1599ce0c4",
+            "cidr": "172.31.80.0/20",
+            "availabilityZone": "us-east-1c",
+            "routeTableId": "rtb-0e927f3264b25980c"
+          },
+          {
+            "subnetId": "subnet-03c230f6c8dd34d0c",
+            "cidr": "172.31.16.0/20",
+            "availabilityZone": "us-east-1d",
+            "routeTableId": "rtb-0e927f3264b25980c"
+          },
+          {
+            "subnetId": "subnet-0f736de2a99e469e1",
+            "cidr": "172.31.48.0/20",
+            "availabilityZone": "us-east-1e",
+            "routeTableId": "rtb-0e927f3264b25980c"
+          },
+          {
+            "subnetId": "subnet-05114144bb62ce680",
+            "cidr": "172.31.64.0/20",
+            "availabilityZone": "us-east-1f",
+            "routeTableId": "rtb-0e927f3264b25980c"
+          }
+        ]
+      }
+    ]
+  }
+}
