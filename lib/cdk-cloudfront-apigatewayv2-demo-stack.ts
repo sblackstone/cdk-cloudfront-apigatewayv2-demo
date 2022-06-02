@@ -12,7 +12,6 @@ import { Stack,
          aws_cloudfront_origins as CloudfrontOrigins,
          aws_cloudfront as Cloudfront,
          aws_certificatemanager as CertificateManager,
-         aws_ec2 as EC2,
          aws_route53 as Route53,
          aws_route53_targets as Targets53
 } from 'aws-cdk-lib';
@@ -32,53 +31,22 @@ export class CdkCloudfrontApigatewayv2DemoStack extends Stack {
         hostedZone
     });
 
-    const vpc = EC2.Vpc.fromLookup(this, 'VPC', {
-      isDefault: true,
-    });
-
-    const api = new ApigwV2.HttpApi(this, 'httpapi', {
-      disableExecuteApiEndpoint: false,
-      corsPreflight: {
-        allowCredentials: false,
-        allowHeaders: ["*"],
-        allowMethods: [ApigwV2.CorsHttpMethod.ANY],
-        allowOrigins: ["*"],
-        exposeHeaders: ["*"],
-      },
-    });
-
-    const apiEndpoint = `${api.apiId}.execute-api.us-east-1.amazonaws.com`;
-
-
-    // Allow API Gateway to run Lambdas
-    const apiPolicy = new IAM.PolicyStatement({});
-    apiPolicy.addActions("sts:AssumeRole");
-    apiPolicy.addServicePrincipal("apigateway.amazonaws.com");
-
-    const apiRole = new IAM.Role(this, "apiRole", {
-      assumedBy: new IAM.ServicePrincipal("apigateway.amazonaws.com"),
-    });
-
-    apiRole.assumeRolePolicy?.addStatements(apiPolicy);
-
-    // Allow Lambdas to use services.
-    const lambdaPolicy = new IAM.PolicyStatement();
-    lambdaPolicy.addAllResources();
-    lambdaPolicy.addActions("logs:*");
-
-    const lambdaRole = new IAM.Role(this, "LR", { assumedBy: new IAM.ServicePrincipal('lambda.amazonaws.com') });
-    lambdaRole.addToPolicy(lambdaPolicy);
-
-
     const fn = new LambdaNodejs.NodejsFunction(this, `exampleFunction`, {
       runtime: Lambda.Runtime.NODEJS_14_X,
       entry: path.join(__dirname, '..', 'example.ts'),
       handler: "handler",
       description: `An example function`,
-      timeout: Duration.seconds(30),
-      environment: {},
-      role: lambdaRole as any,
       depsLockFilePath: path.join(__dirname, `/../yarn.lock`)
+    });
+
+
+    const api = new ApigwV2.HttpApi(this, 'httpapi', {
+      disableExecuteApiEndpoint: false,
+      corsPreflight: {
+        allowHeaders: ["origin", "access-control-request-method", "access-control-request-headers"],
+        allowMethods: [ApigwV2.CorsHttpMethod.ANY],
+        allowOrigins: ["*"],
+      },
     });
 
     api.addRoutes({
@@ -87,15 +55,15 @@ export class CdkCloudfrontApigatewayv2DemoStack extends Stack {
       methods: [ "POST" as ApigwV2.HttpMethod ],
     });
 
-    const orp = new Cloudfront.OriginRequestPolicy(this, 'originRequestPolicy', {
+    const originRequestPolicy = new Cloudfront.OriginRequestPolicy(this, 'originRequestPolicy', {
       headerBehavior: Cloudfront.OriginRequestHeaderBehavior.allowList("access-control-request-method", "origin"),
       queryStringBehavior: Cloudfront.OriginRequestQueryStringBehavior.all()
     });
 
     const distribution = new Cloudfront.Distribution(this, 'cloudfront', {
       defaultBehavior: {
-        origin: new CloudfrontOrigins.HttpOrigin(apiEndpoint),
-        originRequestPolicy: orp,
+        origin: new CloudfrontOrigins.HttpOrigin(`${api.apiId}.execute-api.us-east-1.amazonaws.com`),
+        originRequestPolicy,
         viewerProtocolPolicy: Cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: Cloudfront.AllowedMethods.ALLOW_ALL
       },
