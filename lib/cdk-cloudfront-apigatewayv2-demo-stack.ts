@@ -62,7 +62,7 @@ export class CdkCloudfrontApigatewayv2DemoStack extends Stack {
 
     const distribution = new Cloudfront.Distribution(this, 'cloudfront', {
       defaultBehavior: {
-        origin: new CloudfrontOrigins.HttpOrigin(`${api.apiId}.execute-api.us-east-1.amazonaws.com`),
+        origin: new CloudfrontOrigins.HttpOrigin(`${api.apiId}.execute-api.${Stack.of(this).region}.amazonaws.com`),
         originRequestPolicy,
         viewerProtocolPolicy: Cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: Cloudfront.AllowedMethods.ALLOW_ALL
